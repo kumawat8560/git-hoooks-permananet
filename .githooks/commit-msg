@@ -1,0 +1,43 @@
+#!/bin/bash
+# This hooks is used to check the commit message is in proper format or not
+# Example [CU-123],[EUT-454]
+# A valid commit message should look like “XX-1234: My Commit message”. Where XX-1234 is the Jira ID. XX should only allow the project codes in our Jira. 
+
+INPUT_FILE=$1
+#echo $INPUT_FILE
+MESSAGE=`head -n1 $INPUT_FILE`
+#echo $MESSAGE
+PATTERN="\[.*?-[0-9]+\]"
+
+#List of the project in the jira 
+PROJECTS=('GS' 'P' 'AH' 'CU' 'CS' 'CTG' 'CUS' 'DEMO' 'EUT' 'GAR' 'JT' 'KAT' 'MAR' 'OP' 'RPD' 'PR' 'RPT' 'REYK' 'M2' 'SL' 'SD' 'SPG' 'T022' 'TOP' 'TD')
+#extract the message before - using deleimeter -
+var="$(cut -d '-' -f1 <<< $MESSAGE)"
+#echo "$var"
+
+#extract the project id using deleimeter [
+Project_ID="$(cut -d '[' -f2 <<< $var)"
+#echo "$Project_ID"
+
+counter=0
+if  [[ "$MESSAGE" =~ $PATTERN ]]; then
+  for i in "${PROJECTS[@]}"
+  do
+	if [[ $i == $Project_ID ]]; then
+           echo "Commit Message Accepted"
+           exit 0	   
+   	else
+	   ((counter++))
+	   #echo "counter,$counter"
+	fi
+  done
+  if [ $counter == 25 ]; then
+	  echo "Project not found in the Project List=>${PROJECTS[@]}"
+     exit 1
+  fi
+
+
+else
+  echo "Pattern does not match with the specified format.A valid commit message should look like “[XX-123] My Commit message”. Where XX-1234 is the Jira ID. XX should only allow the project codes in our Jira. "	
+  exit 1
+fi

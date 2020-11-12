@@ -1,0 +1,4 @@
+#!/bin/bash
+# This script is used for pulling the data  before pushing to avoid the merge conflicts
+echo "Pulling before pushing the code"
+git pull
